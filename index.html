@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BBHA Playground Redesign</title>
+
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --ink:#1b1f2a;
+      --muted:#5b6273;
+      --line:#d9dce6;
+      --accent:#2b59c3;
+
+      --pad:#eef1fb;
+
+      --rc:#006400;
+      --blend:#4b0082;
+
+      --errbg:#fff1f2;
+      --errline:#fecdd3;
+      --errink:#7f1d1d;
+
+      --okink:#065f46;
+      --okline:#6ee7b7;
+
+      --padOkBg:#dcfce7;
+      --padOkLine:#22c55e;
+      --padNormBg:var(--pad);
+      --padNormLine:#b9c1da;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Century Gothic", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+    }
+
+    .app{max-width:1180px;margin:0 auto;padding:16px}
+
+    .topbar{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px 14px 12px;
+      box-shadow:0 6px 20px rgba(0,0,0,.06);
+      position:sticky;
+      top:10px;
+      z-index:1200;
+    }
+
+    .row{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .title{font-weight:900;font-size:18px}
+    .sub{color:var(--muted);font-size:13px;font-weight:900;margin-top:4px}
+
+    .controls{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+      z-index:7000;
+      position:relative;
+    }
+
+    select, input[type="date"]{
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-family:inherit;
+      font-size:14px;
+      min-width:260px;
+      font-weight:900;
+      pointer-events:auto;
+      position:relative;
+      z-index:8000;
+      cursor:pointer;
+      -webkit-appearance:menulist;
+      appearance:menulist;
+      touch-action:manipulation;
+    }
+
+    .btn{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:12px;
+      padding:10px 12px;
+      font-family:inherit;
+      font-size:14px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .btn.primary{background:var(--accent);color:#fff;border-color:transparent}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+
+    .pill{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#f0f3ff;
+      border:1px solid #d6ddff;
+      color:#1f2f6b;
+      font-size:12px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .tabs{
+      margin-top:10px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      z-index:6500;
+      position:relative;
+    }
+    .tabBtn{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:999px;
+      padding:8px 12px;
+      font-family:inherit;
+      font-size:13px;
+      font-weight:1000;
+      cursor:pointer;
+      position:relative;
+      z-index:6600;
+    }
+    .tabBtn.active{
+      background:#f0f3ff;
+      border-color:#9fb2ff;
+      color:#1f2f6b;
+    }
+
+    .layout{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+
+    .contentCard{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      box-shadow:0 6px 20px rgba(0,0,0,.06);
+    }
+
+    .scrollArea{
+      max-height:68vh;
+      overflow:auto;
+      padding-right:4px;
+    }
+    .scrollArea.locked{
+      overflow:hidden;
+      max-height:68vh;
+    }
+
+    .sectionTitle{margin:0 0 8px 0;font-size:22px;font-weight:1000}
+    .muted{color:var(--muted);font-weight:1000}
+    .divider{height:1px;background:var(--line);margin:12px 0}
+
+    .story{font-size:23px;line-height:1.62;font-weight:1000}
+
+    .bulletBox{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      background:#fff;
+      margin-top:10px;
+    }
+
+    .quote{
+      margin:8px 0;
+      padding:10px 12px;
+      border-left:6px solid #d6ddff;
+      background:#f7f8ff;
+      border-radius:12px;
+      font-weight:1000;
+      color:#2b3550;
+      font-size:18px;
+      line-height:1.35;
+    }
+
+    .qCard{border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0;background:#fff}
+    .qText{font-weight:1000;margin:0 0 10px 0;font-size:16px}
+    .opts{display:grid;gap:8px}
+    .optBtn{
+      width:100%;
+      text-align:left;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+      cursor:pointer;
+      font-family:inherit;
+      font-size:14px;
+      font-weight:1000;
+    }
+    .optBtn.selected{border-color:#9fb2ff;background:#f0f3ff}
+
+    .navRow{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px}
+
+    .notice{
+      border:1px solid #ffd8a8;
+      background:#fff7ed;
+      padding:10px 12px;
+      border-radius:14px;
+      color:#7a3d00;
+      font-weight:1000;
+      font-size:13px
+    }
+
+    .errorBox{
+      background:#fff1f2;
+      border:1px solid #fecdd3;
+      color:#7f1d1d;
+      border-radius:16px;
+      padding:14px;
+      font-weight:1000;
+      white-space:pre-wrap;
+    }
+
+    .rc{color:var(--rc);font-weight:1000}
+    .blend{color:var(--blend);font-weight:1000}
+
+    .token{
+      user-select:none;
+      -webkit-user-select:none;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      cursor:grab;
+      font-weight:1000;
+      font-size:14px;
+      display:inline-block;
+      touch-action:none;
+      white-space:nowrap;
+    }
+    .token:active{cursor:grabbing}
+
+    .sortWrap{display:flex;flex-direction:column;gap:12px;margin-top:10px}
+    .sortBankSticky{
+      position:sticky;
+      top:0;
+      z-index:800;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+    }
+    .sortBankZone{
+      min-height:92px;
+      border-radius:14px;
+      border:2px dashed #cfd5ea;
+      padding:10px;
+      background:#fff;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-content:flex-start;
+    }
+    .sortZonesCard{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      background:#fff;
+    }
+    .sortZonesScroll{
+      max-height:54vh;
+      overflow:auto;
+      padding-right:4px;
+      border-radius:12px;
+      overscroll-behavior:contain;
+    }
+
+    .zone{
+      border:2px dashed #b9c1da;
+      background:var(--pad);
+      border-radius:14px;
+      padding:10px;
+      margin:10px 0;
+      overscroll-behavior:contain;
+    }
+    .zoneHeader{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;
+    }
+    .zoneTitle{font-weight:1100;font-size:14px}
+    .zoneHint{font-size:12px;font-weight:1000;color:var(--muted)}
+    .zoneDrop{
+      min-height:56px;
+      border-radius:12px;
+      border:2px dashed #b9c1da;
+      background:#fff;
+      padding:8px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-content:flex-start;
+    }
+
+    .matchWrap{display:flex;flex-direction:column;gap:12px;margin-top:10px}
+    .matchBankSticky{
+      position:sticky;
+      top:0;
+      z-index:800;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+    }
+    .matchBankZone{
+      min-height:90px;
+      border-radius:14px;
+      border:2px dashed #cfd5ea;
+      padding:10px;
+      background:#fff;
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-content:flex-start;
+    }
+    .matchDefsCard{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      background:#fff;
+    }
+    .matchDefsScroll{
+      max-height:54vh;
+      overflow:auto;
+      padding-right:4px;
+      border-radius:12px;
+      overscroll-behavior:contain;
+    }
+    .matchRow{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+
+    .matchPad{
+      border-radius:12px;
+      border:2px dashed var(--padNormLine);
+      background:var(--padNormBg);
+      padding:10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      transition: background .12s ease, border-color .12s ease;
+      overscroll-behavior:contain;
+    }
+    .matchPad.filled{
+      background:var(--padOkBg);
+      border-color:var(--padOkLine);
+    }
+    .matchPad .def{
+      color:var(--muted);
+      font-weight:1000;
+      font-size:13px;
+      line-height:1.25;
+      flex:1;
+    }
+    .matchPad .slot{
+      min-width:170px;
+      min-height:42px;
+      border-radius:12px;
+      border:2px dashed #b9c1da;
+      background:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:6px;
+      flex:0 0 auto;
+    }
+
+    .glossGrid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+    .glossItem{border:1px solid var(--line);background:#fff;border-radius:14px;padding:10px 12px}
+    .glossWord{font-weight:1100}
+    .glossDef{margin-top:6px;color:var(--muted);font-weight:1000;line-height:1.35}
+
+    .storyImage{
+      width:100%;
+      max-width:640px;
+      display:block;
+      margin:18px auto;
+      border-radius:20px;
+      border:2px solid #d9dce6;
+      background:#fff;
+    }
+
+    /* IMPORTANT: Prevent native auto-scroll jitter while dragging.
+       We temporarily hide overflow on the scroll containers during a drag,
+       but we still scroll them programmatically with scrollTop. */
+    .noNativeScroll{
+      overflow:hidden !important;
+    }
+
+    .overlay{
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      padding:18px;
+      pointer-events:none;
+    }
+    .overlay.show{display:flex;pointer-events:auto}
+    .overlayCard{
+      width:min(680px, 95vw);
+      background:#ffffff;
+      border-radius:22px;
+      border:2px solid var(--line);
+      box-shadow:0 18px 50px rgba(0,0,0,.25);
+      padding:18px;
+      text-align:center;
+    }
+    .overlayTitle{font-size:30px;font-weight:1200;margin:6px 0 10px;color:var(--okink)}
+    .overlayMsg{font-size:16px;font-weight:1000;color:#1f2937;margin:0 0 12px;line-height:1.35}
+    .overlaySub{font-size:13px;font-weight:1000;color:var(--muted);margin:0 0 14px}
+    .overlayBar{height:10px;border-radius:999px;background:linear-gradient(90deg, var(--okline), #93c5fd);margin:12px 0 16px}
+    .overlayBtnRow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+    .overlayBtn{
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:#fff;
+      padding:12px 14px;
+      font-family:inherit;
+      font-size:15px;
+      font-weight:1200;
+      cursor:pointer;
+    }
+    .overlayBtn.primary{background:var(--accent);border-color:transparent;color:#fff}
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="row">
+        <div>
+          <div class="title">Bee Bender: Peter and Luna Go Rafting in Vancouver</div>
+          <div class="sub">Use the tabs to jump to any page. Glossary is always available.</div>
+        </div>
+
+        <div class="controls">
+          <span class="pill" id="pagePill">Page</span>
+
+          <select id="studentIdSelect" aria-label="Student ID">
+            <option value="">Student ID pick a tree name</option>
+            <option value="Apple">Apple</option><option value="Aspen">Aspen</option><option value="Baobab">Baobab</option><option value="Balsam Fir">Balsam Fir</option>
+            <option value="Black Spruce">Black Spruce</option><option value="Cedar">Cedar</option><option value="Cherry">Cherry</option><option value="Chestnut">Chestnut</option>
+            <option value="Cottonwood">Cottonwood</option><option value="Douglas Fir">Douglas Fir</option><option value="Elm">Elm</option><option value="Eucalyptus">Eucalyptus</option>
+            <option value="Hemlock">Hemlock</option><option value="Hickory">Hickory</option><option value="Holly">Holly</option><option value="Ironwood">Ironwood</option>
+            <option value="Japanese Maple">Japanese Maple</option><option value="Juniper">Juniper</option><option value="Larch">Larch</option><option value="Lemon">Lemon</option>
+            <option value="Magnolia">Magnolia</option><option value="Mango">Mango</option><option value="Maple">Maple</option><option value="Mountain Ash">Mountain Ash</option>
+            <option value="Oak">Oak</option><option value="Olive">Olive</option><option value="Paper Birch">Paper Birch</option><option value="Peach">Peach</option>
+            <option value="Pear">Pear</option><option value="Pine">Pine</option><option value="Poplar">Poplar</option><option value="Redbud">Redbud</option>
+            <option value="Redwood">Redwood</option><option value="Rowan">Rowan</option><option value="Spruce">Spruce</option><option value="Sycamore">Sycamore</option>
+            <option value="Tamarack">Tamarack</option><option value="Walnut">Walnut</option><option value="Willow">Willow</option><option value="Yew">Yew</option>
+          </select>
+
+          <input id="theDate" type="date" aria-label="Date" />
+          <button class="btn" id="resetBtn" type="button" title="Hold SHIFT to reset">Reset</button>
+          <button class="btn primary" id="submitBtn" type="button">Submit</button>
+        </div>
+      </div>
+
+      <div class="tabs" id="tabsBar" aria-label="Navigation tabs"></div>
+
+      <div class="sub" style="margin-top:10px">
+        Reset needs SHIFT and confirmation. Score is not shown.
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="contentCard">
+        <div class="scrollArea" id="scrollArea">
+          <div id="content"></div>
+        </div>
+
+        <div class="navRow">
+          <button class="btn" id="prevBtn" type="button">Back</button>
+          <button class="btn" id="nextBtn" type="button">Next</button>
+        </div>
+
+        <div class="divider"></div>
+        <div class="notice">This activity does not show a score.</div>
+
+        <form name="bbha-playground-redesign" method="POST" data-netlify="true" hidden>
+          <input type="hidden" name="form-name" value="bbha-playground-redesign" />
+          <input type="hidden" name="student_id" id="f_student_id" />
+          <input type="hidden" name="date" id="f_date" />
+          <input type="hidden" name="page_index" id="f_page_index" />
+          <input type="hidden" name="percent_hidden" id="f_percent_hidden" />
+
+          <input type="hidden" name="mcq01_student" id="mcq01_student" /><input type="hidden" name="mcq01_correct" id="mcq01_correct" /><input type="hidden" name="mcq01_result" id="mcq01_result" />
+          <input type="hidden" name="mcq02_student" id="mcq02_student" /><input type="hidden" name="mcq02_correct" id="mcq02_correct" /><input type="hidden" name="mcq02_result" id="mcq02_result" />
+          <input type="hidden" name="mcq03_student" id="mcq03_student" /><input type="hidden" name="mcq03_correct" id="mcq03_correct" /><input type="hidden" name="mcq03_result" id="mcq03_result" />
+          <input type="hidden" name="mcq04_student" id="mcq04_student" /><input type="hidden" name="mcq04_correct" id="mcq04_correct" /><input type="hidden" name="mcq04_result" id="mcq04_result" />
+          <input type="hidden" name="mcq05_student" id="mcq05_student" /><input type="hidden" name="mcq05_correct" id="mcq05_correct" /><input type="hidden" name="mcq05_result" id="mcq05_result" />
+          <input type="hidden" name="mcq06_student" id="mcq06_student" /><input type="hidden" name="mcq06_correct" id="mcq06_correct" /><input type="hidden" name="mcq06_result" id="mcq06_result" />
+          <input type="hidden" name="mcq07_student" id="mcq07_student" /><input type="hidden" name="mcq07_correct" id="mcq07_correct" /><input type="hidden" name="mcq07_result" id="mcq07_result" />
+          <input type="hidden" name="mcq08_student" id="mcq08_student" /><input type="hidden" name="mcq08_correct" id="mcq08_correct" /><input type="hidden" name="mcq08_result" id="mcq08_result" />
+          <input type="hidden" name="mcq09_student" id="mcq09_student" /><input type="hidden" name="mcq09_correct" id="mcq09_correct" /><input type="hidden" name="mcq09_result" id="mcq09_result" />
+          <input type="hidden" name="mcq10_student" id="mcq10_student" /><input type="hidden" name="mcq10_correct" id="mcq10_correct" /><input type="hidden" name="mcq10_result" id="mcq10_result" />
+          <input type="hidden" name="mcq11_student" id="mcq11_student" /><input type="hidden" name="mcq11_correct" id="mcq11_correct" /><input type="hidden" name="mcq11_result" id="mcq11_result" />
+          <input type="hidden" name="mcq12_student" id="mcq12_student" /><input type="hidden" name="mcq12_correct" id="mcq12_correct" /><input type="hidden" name="mcq12_result" id="mcq12_result" />
+          <input type="hidden" name="mcq13_student" id="mcq13_student" /><input type="hidden" name="mcq13_correct" id="mcq13_correct" /><input type="hidden" name="mcq13_result" id="mcq13_result" />
+          <input type="hidden" name="mcq14_student" id="mcq14_student" /><input type="hidden" name="mcq14_correct" id="mcq14_correct" /><input type="hidden" name="mcq14_result" id="mcq14_result" />
+          <input type="hidden" name="mcq15_student" id="mcq15_student" /><input type="hidden" name="mcq15_correct" id="mcq15_correct" /><input type="hidden" name="mcq15_result" id="mcq15_result" />
+
+          <input type="hidden" name="sort01_student" id="sort01_student" /><input type="hidden" name="sort01_correct" id="sort01_correct" /><input type="hidden" name="sort01_result" id="sort01_result" />
+          <input type="hidden" name="sort02_student" id="sort02_student" /><input type="hidden" name="sort02_correct" id="sort02_correct" /><input type="hidden" name="sort02_result" id="sort02_result" />
+          <input type="hidden" name="sort03_student" id="sort03_student" /><input type="hidden" name="sort03_correct" id="sort03_correct" /><input type="hidden" name="sort03_result" id="sort03_result" />
+          <input type="hidden" name="sort04_student" id="sort04_student" /><input type="hidden" name="sort04_correct" id="sort04_correct" /><input type="hidden" name="sort04_result" id="sort04_result" />
+          <input type="hidden" name="sort05_student" id="sort05_student" /><input type="hidden" name="sort05_correct" id="sort05_correct" /><input type="hidden" name="sort05_result" id="sort05_result" />
+          <input type="hidden" name="sort06_student" id="sort06_student" /><input type="hidden" name="sort06_correct" id="sort06_correct" /><input type="hidden" name="sort06_result" id="sort06_result" />
+          <input type="hidden" name="sort07_student" id="sort07_student" /><input type="hidden" name="sort07_correct" id="sort07_correct" /><input type="hidden" name="sort07_result" id="sort07_result" />
+          <input type="hidden" name="sort08_student" id="sort08_student" /><input type="hidden" name="sort08_correct" id="sort08_correct" /><input type="hidden" name="sort08_result" id="sort08_result" />
+          <input type="hidden" name="sort09_student" id="sort09_student" /><input type="hidden" name="sort09_correct" id="sort09_correct" /><input type="hidden" name="sort09_result" id="sort09_result" />
+          <input type="hidden" name="sort10_student" id="sort10_student" /><input type="hidden" name="sort10_correct" id="sort10_correct" /><input type="hidden" name="sort10_result" id="sort10_result" />
+
+          <input type="hidden" name="match01_student" id="match01_student" /><input type="hidden" name="match01_correct" id="match01_correct" /><input type="hidden" name="match01_result" id="match01_result" />
+          <input type="hidden" name="match02_student" id="match02_student" /><input type="hidden" name="match02_correct" id="match02_correct" /><input type="hidden" name="match02_result" id="match02_result" />
+          <input type="hidden" name="match03_student" id="match03_student" /><input type="hidden" name="match03_correct" id="match03_correct" /><input type="hidden" name="match03_result" id="match03_result" />
+          <input type="hidden" name="match04_student" id="match04_student" /><input type="hidden" name="match04_correct" id="match04_correct" /><input type="hidden" name="match04_result" id="match04_result" />
+          <input type="hidden" name="match05_student" id="match05_student" /><input type="hidden" name="match05_correct" id="match05_correct" /><input type="hidden" name="match05_result" id="match05_result" />
+          <input type="hidden" name="match06_student" id="match06_student" /><input type="hidden" name="match06_correct" id="match06_correct" /><input type="hidden" name="match06_result" id="match06_result" />
+          <input type="hidden" name="match07_student" id="match07_student" /><input type="hidden" name="match07_correct" id="match07_correct" /><input type="hidden" name="match07_result" id="match07_result" />
+          <input type="hidden" name="match08_student" id="match08_student" /><input type="hidden" name="match08_correct" id="match08_correct" /><input type="hidden" name="match08_result" id="match08_result" />
+          <input type="hidden" name="match09_student" id="match09_student" /><input type="hidden" name="match09_correct" id="match09_correct" /><input type="hidden" name="match09_result" id="match09_result" />
+          <input type="hidden" name="match10_student" id="match10_student" /><input type="hidden" name="match10_correct" id="match10_correct" /><input type="hidden" name="match10_result" id="match10_result" />
+          <input type="hidden" name="match11_student" id="match11_student" /><input type="hidden" name="match11_correct" id="match11_correct" /><input type="hidden" name="match11_result" id="match11_result" />
+          <input type="hidden" name="match12_student" id="match12_student" /><input type="hidden" name="match12_correct" id="match12_correct" /><input type="hidden" name="match12_result" id="match12_result" />
+          <input type="hidden" name="match13_student" id="match13_student" /><input type="hidden" name="match13_correct" id="match13_correct" /><input type="hidden" name="match13_result" id="match13_result" />
+          <input type="hidden" name="match14_student" id="match14_student" /><input type="hidden" name="match14_correct" id="match14_correct" /><input type="hidden" name="match14_result" id="match14_result" />
+          <input type="hidden" name="match15_student" id="match15_student" /><input type="hidden" name="match15_correct" id="match15_correct" /><input type="hidden" name="match15_result" id="match15_result" />
+          <input type="hidden" name="match16_student" id="match16_student" /><input type="hidden" name="match16_correct" id="match16_correct" /><input type="hidden" name="match16_result" id="match16_result" />
+          <input type="hidden" name="match17_student" id="match17_student" /><input type="hidden" name="match17_correct" id="match17_correct" /><input type="hidden" name="match17_result" id="match17_result" />
+          <input type="hidden" name="match18_student" id="match18_student" /><input type="hidden" name="match18_correct" id="match18_correct" /><input type="hidden" name="match18_result" id="match18_result" />
+          <input type="hidden" name="match19_student" id="match19_student" /><input type="hidden" name="match19_correct" id="match19_correct" /><input type="hidden" name="match19_result" id="match19_result" />
+          <input type="hidden" name="match20_student" id="match20_student" /><input type="hidden" name="match20_correct" id="match20_correct" /><input type="hidden" name="match20_result" id="match20_result" />
+          <input type="hidden" name="match21_student" id="match21_student" /><input type="hidden" name="match21_correct" id="match21_correct" /><input type="hidden" name="match21_result" id="match21_result" />
+          <input type="hidden" name="match22_student" id="match22_student" /><input type="hidden" name="match22_correct" id="match22_correct" /><input type="hidden" name="match22_result" id="match22_result" />
+          <input type="hidden" name="match23_student" id="match23_student" /><input type="hidden" name="match23_correct" id="match23_correct" /><input type="hidden" name="match23_result" id="match23_result" />
+          <input type="hidden" name="match24_student" id="match24_student" /><input type="hidden" name="match24_correct" id="match24_correct" /><input type="hidden" name="match24_result" id="match24_result" />
+          <input type="hidden" name="match25_student" id="match25_student" /><input type="hidden" name="match25_correct" id="match25_correct" /><input type="hidden" name="match25_result" id="match25_result" />
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="submitOverlay" aria-live="polite">
+    <div class="overlayCard">
+      <div style="font-size:34px; font-weight:1200;">✅</div>
+      <div class="overlayTitle" id="overlayTitle">Submitted</div>
+      <div class="overlayMsg" id="overlayMsg">Your work has been submitted.</div>
+      <div class="overlaySub" id="overlaySub">You may close this page now.</div>
+      <div class="overlayBar"></div>
+      <div class="overlayBtnRow">
+        <button class="overlayBtn" id="overlayCloseBtn" type="button">Close</button>
+        <button class="overlayBtn primary" id="overlayOkBtn" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = "bbha_playground_redesign_v1";
+
+  function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
+
+  function esc(s){
+    var str = String(s);
+    return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  }
+
+  var BLENDS = ["str","scr","spr","spl","bl","br","cl","cr","dr","fl","fr","gl","gr","pl","pr","sc","sk","sl","sm","sn","sp","st","sw","tr","tw"];
+
+  function colorizeWord(word){
+    var lower = word.toLowerCase();
+    var out = "";
+    var i = 0;
+    while(i < word.length){
+      var best = "";
+      for(var b=0;b<BLENDS.length;b++){
+        var blend = BLENDS[b];
+        if(lower.slice(i, i + blend.length) === blend){
+          if(blend.length > best.length) best = blend;
+        }
+      }
+      if(best){
+        out += '<span class="blend">' + word.slice(i, i + best.length) + "</span>";
+        i += best.length;
+        continue;
+      }
+      var ch = lower[i];
+      var nxt = lower[i+1] || "";
+      if((ch==="a"||ch==="e"||ch==="i"||ch==="o"||ch==="u") && nxt==="r"){
+        out += '<span class="rc">' + word.slice(i, i+2) + "</span>";
+        i += 2;
+        continue;
+      }
+      out += word[i];
+      i += 1;
+    }
+    return out;
+  }
+
+  function colorizeText(raw){
+    var safe = esc(raw);
+    var parts = safe.split(/([A-Za-z]+)/);
+    for(var i=0;i<parts.length;i++){
+      if(/^[A-Za-z]+$/.test(parts[i])) parts[i] = colorizeWord(parts[i]);
+    }
+    return parts.join("");
+  }
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return null;
+      return JSON.parse(raw);
+    }catch(e){ return null; }
+  }
+
+  function saveState(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  var pages = [{type:"intro", tab:"Intro", title:"Playground Redesign: Peter and Luna Help Make It Safer and More Fun", imageSrc:"", imageAlt:"", blurb:["👋 Welcome to BBHA Playground Redesign.", "Read the story: Intro plus five sections. Each section has a helper character, a problem, ideas, and step-by-step fixing.", "After each section, answer three multiple choice questions.", "Then do Sort and Match. Tokens stay sticky and zones scroll.", "Choose your Tree Name and Date at the top so your work saves and submits."], headings:["1) The Cracked Court with Coach Mira 🏀🧰", "2) The Wobbly Slide with Mr. Singh 🛝🔧", "3) The Muddy Corner with Ms. Chen 🌧️🪣", "4) The Crowded Climber with Reggie 🧗📏", "5) The Lost Ball Problem with Officer Rivera 🚸⚽"], note:"This page has no activity."}, {type:"section", tab:"Section 1", heading:"1) The Cracked Court with Coach Mira 🏀🧰", helper:"Coach Mira is the school coach. She runs games at recess and watches for fair play and safety.", imageSrc:"", imageAlt:"", story:["Behind the school on Riverbend Drive, the playground sits next to the rail fence and the big maple tree. In spring, rain makes tiny puddles on the blacktop.", "Peter and Luna were asked to help with a redesign because more students were getting scrapes and teachers were hearing more complaints.", "A long crack cut across the basketball court. When kids sprinted, the crack caught shoe edges. Some students stumbled.", "Coach Mira rolled a ball over the crack and it bumped. “Cause and effect,” she said. “If the surface is broken, running feet catch, then kids fall.”", "Peter wondered, Do we fix the crack or just block the area? Luna said, “Let’s frame the problem clearly: this court is used every day.”"], dialogue:["Problem: A long crack on the court made students trip during games.", "They brainstormed ideas: paint over it, put cones around it, or repair and level it properly.", "Solution steps:"], steps:["Coach Mira explained why some ideas would not work. “Paint changes colour, but it does not remove the dip. Cones help for one day, but kids forget when excited.”", "Step 1: They measured the crack so the repair crew knew how much filler was needed.", "Step 2: They scrubbed out grit and dust so the filler would stick.", "Step 3: The crew pressed rubberized filler into the crack and smoothed it flat with a trowel.", "Step 4: After drying, Coach Mira tested the spot by walking fast across it and rolling a ball. No bump meant safer running.", "Step 5: They repainted clear lines so students knew where to run, stop, and line up."], lesson:"Lesson: The best fix removes the cause of the problem, not just the look of it.", mcq:[{q:"What made students trip on the court?", options:["A long crack in the surface", "A tall fence", "A loud whistle", "A new basketball"], answer:"A long crack in the surface"}, {q:"Why would painting over the crack not solve the problem?", options:["It does not fill the dip", "It makes it too bright", "It breaks the ball", "It moves the fence"], answer:"It does not fill the dip"}, {q:"What tool is used to smooth filler flat?", options:["A trowel", "A pencil", "A ruler", "A mitten"], answer:"A trowel"}]}, {type:"section", tab:"Section 2", heading:"2) The Wobbly Slide with Mr. Singh 🛝🔧", helper:"Mr. Singh is the caretaker. He checks equipment and tightens bolts so it stays steady.", imageSrc:"", imageAlt:"", story:["Near Maple Park, the slide ladder felt cold and the metal rails shook slightly when students climbed.", "Luna held the handrail and it wobbled. Peter tried it too and the rail moved again.", "Mr. Singh came over with a tool pouch. “Good noticing,” he said. “Cause and effect: a loose rail can make someone lose balance, then fall.”", "Peter wondered, Is it one loose bolt or a bigger frame problem? Luna suggested checking in order so nothing is missed.", "They considered options: ignore it, tape it, or close it and repair it properly."], dialogue:["Problem: The slide handrail was loose and wobbly.", "Alternate ideas: tape it, warn kids, or fix the bolts and inspect the frame.", "Solution steps:"], steps:["Step 1: Mr. Singh placed cones and a CLOSED sign so nobody climbed during repairs.", "Step 2: He tested each bolt with a wrench and found two loose ones.", "Step 3: He explained why tape would not work: “Tape does not make metal strong. It peels and the rail still moves.”", "Step 4: He tightened the bolts, checked the bracket underneath, and looked for rust or cracks.", "Step 5: He pushed and pulled the rail to test it. When it stayed steady, he reopened the slide with a reminder: one person at a time."], lesson:"Lesson: If something wobbles, stop, check, and fix it before more people use it.", mcq:[{q:"What was wrong with the slide?", options:["The handrail was loose", "The slide was too tall", "The sand was purple", "The ladder was missing"], answer:"The handrail was loose"}, {q:"What did Mr. Singh do first to keep kids safe?", options:["He put cones and a CLOSED sign", "He painted it", "He moved it to the gym", "He ignored it"], answer:"He put cones and a CLOSED sign"}, {q:"Why would tape not be a good fix?", options:["Tape does not make metal strong", "Tape makes it slippery", "Tape makes it louder", "Tape changes the weather"], answer:"Tape does not make metal strong"}]}, {type:"section", tab:"Section 3", heading:"3) The Muddy Corner with Ms. Chen 🌧️🪣", helper:"Ms. Chen is a parent volunteer who helps with gardens and understands drainage.", imageSrc:"", imageAlt:"", story:["At the far corner by the bike rack, rainwater collected and turned the ground into thick mud. Shoes sank and kids avoided the area, which made other spaces crowded.", "Ms. Chen arrived in rain boots with a small shovel. “This is drainage,” she said. “Cause and effect: water pools here, mud forms, then kids slip and crowd elsewhere.”", "Luna pointed to a downspout on the portable. “Rain falls on the roof and dumps right here,” she said.", "Peter wondered, How do we move the water away? They considered adding dirt, putting straw, or building a path that guides water to travel."], dialogue:["Problem: A corner stayed muddy because rainwater drained into it.", "Quick fixes were considered, but they chose a long-lasting plan.", "Solution steps:"], steps:["Step 1: Ms. Chen traced the water route from roof to downspout to puddle so they knew the cause.", "Step 2: They planned a gentle slope away from the corner so water would not pool.", "Step 3: They dug a shallow gravel trench. Gravel has gaps, so water can pass through.", "Step 4: They added landscape fabric under the gravel so soil would not mix in and turn to sludge.", "Step 5: They placed stepping stones on top for dry walking, and redirected the downspout toward the trench."], lesson:"Lesson: To stop mud, you must guide water away and give it a path.", mcq:[{q:"Why did the corner get muddy?", options:["Rainwater drained into it", "Kids poured juice there", "The sun melted it", "It was covered in leaves"], answer:"Rainwater drained into it"}, {q:"What material helped water move through the ground?", options:["Gravel", "Glitter", "Chalk", "Paper"], answer:"Gravel"}, {q:"What helped kids step without sinking?", options:["Stepping stones", "Snowballs", "Balloons", "Paint"], answer:"Stepping stones"}]}, {type:"section", tab:"Section 4", heading:"4) The Crowded Climber with Reggie 🧗📏", helper:"Reggie is a playground designer who plans safe spacing and traffic flow.", imageSrc:"", imageAlt:"", story:["Near the big maple tree, the climbing structure was so popular that kids crowded the ladder and platform. Bumps led to arguments and unsafe climbing.", "Reggie arrived with a hard hat and a measuring wheel. “If one feature is the only exciting option, everyone gathers here,” he said. “Crowding causes pushing, then falls and hurt feelings.”", "Peter wondered, How do we keep the fun but spread kids out? Luna suggested adding choices and clearer routes.", "They considered: add another ladder, paint waiting spots, or build a nearby balance path. Reggie said combining ideas would work best."], dialogue:["Problem: The climber area was crowded and unsafe.", "They considered alternate solutions and chose one that changed how kids flowed through the space.", "Solution steps:"], steps:["Step 1: Reggie measured safe spacing and marked zones so new features would not be too close.", "Step 2: They planned a simple one-way idea: one side for climbing up, one side for climbing down.", "Step 3: They added a low balance path nearby so kids had another choice.", "Step 4: They painted footprint waiting spots and added a short rule sign. The footprints reduced arguing and made turns clearer.", "Step 5: At recess, Luna observed fewer crowds because kids spread out and followed the route."], lesson:"Lesson: More choices and clear routes reduce crowding and make play safer.", mcq:[{q:"What was the main problem at the climber?", options:["Too many kids crowded one spot", "The climber was invisible", "The climber was underwater", "The climber was made of paper"], answer:"Too many kids crowded one spot"}, {q:"What did footprint spots help with?", options:["Waiting turns", "Making it rainy", "Making it louder", "Making it bouncy"], answer:"Waiting turns"}, {q:"Why did adding a balance path help?", options:["It gave kids another choice", "It made the fence taller", "It removed the tree", "It stopped the sun"], answer:"It gave kids another choice"}]}, {type:"section", tab:"Section 5", heading:"5) The Lost Ball Problem with Officer Rivera 🚸⚽", helper:"Officer Rivera is a community safety officer who helps schools plan safer boundaries.", imageSrc:"", imageAlt:"", story:["Soccer balls often rolled toward the driveway by Oakview Street. When a ball escaped, kids chased it without looking.", "Officer Rivera arrived on a bicycle wearing a bright vest. “Cause and effect,” he said. “A rolling ball steals attention. If a kid runs after it, they may not notice a car.”", "Peter felt nervous. Luna said, “We need a boundary and a routine kids can remember.”", "They considered: just tell kids to be careful, put up a sign, add a barrier, or move the soccer zone farther from the driveway."], dialogue:["Problem: Balls rolled toward the driveway and kids chased them into a risky area.", "They weighed options and chose a design that physically stopped balls.", "Solution steps:"], steps:["Step 1: They moved the soccer zone and painted new boundary lines farther from the driveway.", "Step 2: Officer Rivera planned a low net barrier. A net stops balls but lets adults see through.", "Step 3: They installed posts, tightened the net, and added a bright STOP line on the ground.", "Step 4: They taught a routine: one retriever walks to get the ball while others stay behind the line.", "Step 5: The net changed the ball path and the STOP line changed kid movement, so the risk dropped."], lesson:"Lesson: Safety improves when the space guides behaviour, not only reminders.", mcq:[{q:"Why was chasing balls near the driveway risky?", options:["Kids might not see a car", "Balls disappear forever", "The grass turns purple", "Shoes break instantly"], answer:"Kids might not see a car"}, {q:"What stopped balls from rolling out?", options:["A net barrier", "A louder whistle", "A bigger tree", "A new lunch"], answer:"A net barrier"}, {q:"What did the STOP line remind kids to do?", options:["Stop and walk to retrieve", "Jump and shout", "Hide and wait", "Sit on the fence"], answer:"Stop and walk to retrieve"}]}, {type:"glossary", tab:"Glossary", title:"Glossary for Playground Words"}, {type:"sort", tab:"Sort", title:"Sort the Playground Problems and Fixes", intro:"Drag each token into the correct section zone.", zones:[{id:"z1", name:"Section 1 Court 🏀", hint:"Crack and surface repair ✅"}, {id:"z2", name:"Section 2 Slide 🛝", hint:"Wobbly rail and bolts ✅"}, {id:"z3", name:"Section 3 Mud 🌧️", hint:"Water route and drainage ✅"}, {id:"z4", name:"Section 4 Climber 🧗", hint:"Crowding and traffic flow ✅"}, {id:"z5", name:"Section 5 Soccer ⚽", hint:"Balls and driveway safety ✅"}], tokens:[{id:"st1", text:"Coach Mira", correctZone:"Section 1 Court 🏀"}, {id:"st2", text:"Patch the crack", correctZone:"Section 1 Court 🏀"}, {id:"st3", text:"Mr. Singh", correctZone:"Section 2 Slide 🛝"}, {id:"st4", text:"Tighten bolts", correctZone:"Section 2 Slide 🛝"}, {id:"st5", text:"Ms. Chen", correctZone:"Section 3 Mud 🌧️"}, {id:"st6", text:"Gravel trench", correctZone:"Section 3 Mud 🌧️"}, {id:"st7", text:"Reggie designer", correctZone:"Section 4 Climber 🧗"}, {id:"st8", text:"Footprint spots", correctZone:"Section 4 Climber 🧗"}, {id:"st9", text:"Officer Rivera", correctZone:"Section 5 Soccer ⚽"}, {id:"st10", text:"Net barrier", correctZone:"Section 5 Soccer ⚽"}]}, {type:"match", tab:"Match", title:"Match Playground Words and Meanings", intro:"Drag each word into the correct definition row.", pairs:[["balance", "Staying upright without falling"], ["barrier", "Something that blocks or stops movement"], ["boundary", "A line that shows where an area starts and ends"], ["bracket", "A metal piece that connects parts"], ["cause", "What makes something happen"], ["cone", "A bright marker used to block off an area"], ["drainage", "How water moves away instead of pooling"], ["effect", "What happens because of a cause"], ["filler", "Material used to fill a crack so it becomes smooth"], ["flow", "How people move through a space"], ["footprints", "Painted spots that show where to wait"], ["gravel", "Small stones that let water pass through gaps"], ["hazard", "Something that could hurt someone"], ["level", "Flat and even, not bumpy"], ["measure", "To find a length or size using a tool"], ["net", "A woven barrier that can stop balls"], ["patch", "To fix a damaged spot by filling and smoothing"], ["pool", "To collect in one place like water in a puddle"], ["repair", "To fix something so it works safely again"], ["rust", "Orange coating that can weaken metal"], ["slope", "A gentle tilt that helps water flow"], ["steady", "Not shaking or wobbling"], ["trip hazard", "Something that can catch a foot and cause a fall"], ["trowel", "A tool used to smooth filler"], ["wobble", "To move back and forth in an unsteady way"]]}];
+
+  var SECTION_START = 1;
+  var SECTION_COUNT = 5;
+
+  var glossaryIndex = 6;
+  var sortIndex = 7;
+  var matchIndex = 8;
+
+  function loadOrDefault(){
+    var s = loadState();
+    if(!s){
+      s = {
+        pageIndex: 0,
+        studentId: "",
+        date: "",
+        mcqChoice: {},
+        matchTokenLocation: {},
+        matchChoice: {},
+        sortTokenLocation: {},
+        sortChoice: {}
+      };
+    }
+    if(!s.mcqChoice) s.mcqChoice = {};
+    if(!s.matchTokenLocation) s.matchTokenLocation = {};
+    if(!s.matchChoice) s.matchChoice = {};
+    if(!s.sortTokenLocation) s.sortTokenLocation = {};
+    if(!s.sortChoice) s.sortChoice = {};
+    return s;
+  }
+
+  var state = loadOrDefault();
+
+  if(!state.date){
+    var d0 = new Date();
+    state.date = d0.toISOString().slice(0,10);
+  }
+
+  var TOTAL = pages.length;
+  state.pageIndex = clamp(Number(state.pageIndex || 0), 0, TOTAL - 1);
+
+  var elContent = document.getElementById("content");
+  var elPagePill = document.getElementById("pagePill");
+  var elTabsBar = document.getElementById("tabsBar");
+  var elScrollArea = document.getElementById("scrollArea");
+
+  var btnPrev = document.getElementById("prevBtn");
+  var btnNext = document.getElementById("nextBtn");
+  var btnReset = document.getElementById("resetBtn");
+  var btnSubmit = document.getElementById("submitBtn");
+
+  var selId = document.getElementById("studentIdSelect");
+  var inpDate = document.getElementById("theDate");
+
+  var overlay = document.getElementById("submitOverlay");
+  var overlayTitle = document.getElementById("overlayTitle");
+  var overlayMsg = document.getElementById("overlayMsg");
+  var overlaySub = document.getElementById("overlaySub");
+  var overlayCloseBtn = document.getElementById("overlayCloseBtn");
+  var overlayOkBtn = document.getElementById("overlayOkBtn");
+
+  function showOverlay(mode){
+    overlay.classList.add("show");
+    if(mode === "sending"){
+      overlayTitle.textContent = "Submitting";
+      overlayMsg.textContent = "Sending your work now.";
+      overlaySub.textContent = "Please wait...";
+    }else if(mode === "success"){
+      overlayTitle.textContent = "Submitted";
+      overlayMsg.textContent = "Your work has been submitted.";
+      overlaySub.textContent = "You may close this page now.";
+    }else{
+      overlayTitle.textContent = "Not Submitted";
+      overlayMsg.textContent = "Your work did not submit. Please reload and try again.";
+      overlaySub.textContent = "Confirm the form is detected in Netlify.";
+    }
+  }
+  function hideOverlay(){ overlay.classList.remove("show"); }
+  overlayCloseBtn.addEventListener("click", hideOverlay);
+  overlayOkBtn.addEventListener("click", hideOverlay);
+
+  function setError(msg){
+    elContent.innerHTML = '<div class="errorBox">' + esc(msg) + "</div>";
+  }
+
+  // Drag state
+  var dragging = {
+    active:false,
+    lastClientY:0,
+    sortScrollEl:null,
+    matchScrollEl:null
+  };
+
+  function lockNativeScroll(el, lock){
+    if(!el) return;
+    if(lock) el.classList.add("noNativeScroll");
+    else el.classList.remove("noNativeScroll");
+  }
+
+  function clearAllLocks(){
+    lockNativeScroll(dragging.sortScrollEl, false);
+    lockNativeScroll(dragging.matchScrollEl, false);
+  }
+
+  function makeToken(tokenId, rawText){
+    var el = document.createElement("div");
+    el.className = "token";
+    el.innerHTML = colorizeText(rawText);
+    el.draggable = true;
+    el.dataset.tokenId = tokenId;
+
+    el.addEventListener("dragstart", function(e){
+      try{
+        e.dataTransfer.setData("text/plain", tokenId);
+        e.dataTransfer.effectAllowed = "move";
+      }catch(err){}
+      dragging.active = true;
+      dragging.lastClientY = e.clientY || 0;
+      // during drag we will prevent native scroll in whichever scroll box is active
+    });
+
+    el.addEventListener("dragend", function(){
+      dragging.active = false;
+      clearAllLocks();
+      dragging.sortScrollEl = null;
+      dragging.matchScrollEl = null;
+    });
+
+    return el;
+  }
+
+  function setupDropZone(zoneEl, onDropFn){
+    zoneEl.addEventListener("dragover", function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      try{ e.dataTransfer.dropEffect = "move"; }catch(err){}
+    }, true);
+
+    zoneEl.addEventListener("drop", function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      var tid = "";
+      try{ tid = e.dataTransfer.getData("text/plain"); }catch(err){}
+      if(!tid) return;
+      onDropFn(tid, zoneEl, e);
+    }, true);
+  }
+
+  function renderTabs(){
+    elTabsBar.innerHTML = "";
+    for(var i=0;i<pages.length;i++){
+      var p = pages[i];
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "tabBtn" + (i === state.pageIndex ? " active" : "");
+      btn.textContent = p.tab || ("Page " + String(i+1));
+      (function(index){
+        btn.addEventListener("click", function(){ goToPage(index); });
+      })(i);
+      elTabsBar.appendChild(btn);
+    }
+  }
+
+  function goToPage(index){
+    index = clamp(Number(index), 0, TOTAL - 1);
+    state.pageIndex = index;
+    saveState();
+    render();
+    try{
+      if(!elScrollArea.classList.contains("locked")){
+        elScrollArea.scrollTop = 0;
+      }
+    }catch(e){}
+  }
+
+  function renderIntro(page){
+    var html = "";
+    html += '<h2 class="sectionTitle">' + colorizeText(page.title) + "</h2>";
+    html += '<div class="muted">' + colorizeText(page.note) + "</div>";
+
+    if(page.imageSrc){
+      html += '<img src="' + esc(page.imageSrc) + '" alt="' + esc(page.imageAlt || "") + '" class="storyImage" />';
+    }
+
+    html += '<div class="divider"></div>';
+    html += '<div class="story">';
+    for(var i=0;i<page.blurb.length;i++){
+      html += '<p style="margin:0 0 10px 0;">' + colorizeText(page.blurb[i]) + "</p>";
+    }
+    html += "</div>";
+    html += '<div class="bulletBox">';
+    html += '<div style="margin-bottom:6px;"><strong>Headings for each part of the story:</strong></div>';
+    html += "<ol style=\"margin:0 0 0 18px;\">";
+    for(var h=0;h<page.headings.length;h++){
+      html += "<li>" + colorizeText(page.headings[h]) + "</li>";
+    }
+    html += "</ol></div>";
+    elContent.innerHTML = html;
+  }
+
+  function renderSection(page, sectionZeroBasedIndex){
+    var html = "";
+    html += '<h2 class="sectionTitle">' + colorizeText(page.heading) + "</h2>";
+    html += '<div class="muted">Helper character: ' + colorizeText(page.helper) + "</div>";
+
+    if(page.imageSrc){
+      html += '<img src="' + esc(page.imageSrc) + '" alt="' + esc(page.imageAlt || "") + '" class="storyImage" />';
+    }
+
+    html += '<div class="divider"></div>';
+
+    html += '<div class="story">';
+    for(var i=0;i<page.story.length;i++){
+      html += '<p style="margin:0 0 10px 0;">' + colorizeText(page.story[i]) + "</p>";
+    }
+    html += "</div>";
+
+    for(var d=0; d<page.dialogue.length; d++){
+      html += '<div class="quote">' + colorizeText(page.dialogue[d]) + "</div>";
+    }
+
+    html += '<div class="bulletBox">';
+    html += '<div style="margin-bottom:6px;"><strong>Steps:</strong></div>';
+    html += "<ol style=\"margin:0 0 8px 18px;\">";
+    for(var s=0;s<page.steps.length;s++){
+      html += "<li>" + colorizeText(page.steps[s]) + "</li>";
+    }
+    html += "</ol>";
+    html += '<div><strong>' + colorizeText(page.lesson) + "</strong></div>";
+    html += "</div>";
+
+    html += '<div class="divider"></div>';
+    html += '<div class="muted">Multiple Choice Questions: Choose one answer for each question.</div>';
+
+    for(var q=0;q<page.mcq.length;q++){
+      var globalIndex = (sectionZeroBasedIndex * 3) + q + 1;
+      var qid = "mcq" + String(globalIndex);
+      var selected = state.mcqChoice[qid] || "";
+
+      html += '<div class="qCard">';
+      html += '<div class="qText">' + colorizeText(String(q+1) + ". " + page.mcq[q].q) + "</div>";
+      html += '<div class="opts">';
+      for(var k=0;k<page.mcq[q].options.length;k++){
+        var opt = page.mcq[q].options[k];
+        var cls = (opt === selected) ? "optBtn selected" : "optBtn";
+        html += '<button type="button" class="' + cls + '" data-q="' + esc(qid) + '" data-opt="' + esc(opt) + '">' + colorizeText(opt) + "</button>";
+      }
+      html += "</div></div>";
+    }
+
+    elContent.innerHTML = html;
+
+    var btns = elContent.querySelectorAll("button[data-q]");
+    btns.forEach(function(b){
+      b.addEventListener("click", function(){
+        var qid = b.getAttribute("data-q");
+        var opt = b.getAttribute("data-opt");
+        state.mcqChoice[qid] = opt;
+        saveState();
+        render();
+      });
+    });
+  }
+
+  function renderGlossary(){
+    var glossary = [
+      ["balance", "Staying upright without falling."],
+      ["barrier", "Something that blocks or stops movement, like a net or fence."],
+      ["boundary", "A line that shows where an area starts and ends."],
+      ["bracket", "A metal piece that connects parts and holds them in place."],
+      ["cause", "What makes something happen."],
+      ["cone", "A bright marker used to block off an area."],
+      ["drainage", "How water moves away instead of pooling."],
+      ["effect", "What happens because of a cause."],
+      ["filler", "Material used to fill a crack so the surface becomes smooth."],
+      ["flow", "How people move through a space."],
+      ["footprints", "Painted spots that show where to wait or line up."],
+      ["gravel", "Small stones that let water pass through gaps."],
+      ["hazard", "Something that could hurt someone."],
+      ["level", "Flat and even, not bumpy."],
+      ["measure", "To find the size or length using a tool like a tape measure."],
+      ["net", "A woven barrier that can stop balls while staying see-through."],
+      ["patch", "To fix a damaged spot by filling and smoothing it."],
+      ["pool", "To collect in one place, like water in a puddle."],
+      ["repair", "To fix something so it works safely again."],
+      ["rust", "A rough orange coating that can weaken metal."],
+      ["slope", "A gentle tilt that helps water flow in a direction."],
+      ["steady", "Not shaking or wobbling."],
+      ["trip hazard", "Something on the ground that can catch a foot and cause a fall."],
+      ["trowel", "A flat tool used to spread and smooth filler."],
+      ["wobble", "To move back and forth in an unsteady way."]
+    ];
+
+    var html = "";
+    html += '<h2 class="sectionTitle">' + colorizeText("Glossary for Rafting Words") + "</h2>";
+    html += '<div class="muted">' + colorizeText("Alphabetical order A to Z. Use tabs to jump back to any page.") + "</div>";
+    html += '<div class="divider"></div>';
+    html += '<div class="glossGrid">';
+    for(var i=0;i<glossary.length;i++){
+      html += '<div class="glossItem">';
+      html += '<div class="glossWord">' + colorizeText(glossary[i][0]) + "</div>";
+      html += '<div class="glossDef">' + colorizeText(glossary[i][1]) + "</div>";
+      html += "</div>";
+    }
+    html += "</div>";
+    elContent.innerHTML = html;
+  }
+
+  function ensureSortState(page){
+    for(var i=0;i<page.tokens.length;i++){
+      var tid = page.tokens[i].id;
+      if(!state.sortTokenLocation[tid]) state.sortTokenLocation[tid] = "bank";
+    }
+    for(var z=0;z<page.zones.length;z++){
+      var zid = page.zones[z].id;
+      if(!state.sortChoice[zid]) state.sortChoice[zid] = [];
+      if(!Array.isArray(state.sortChoice[zid])) state.sortChoice[zid] = [];
+    }
+  }
+  function sortTokenText(page, tid){
+    for(var i=0;i<page.tokens.length;i++){
+      if(page.tokens[i].id === tid) return page.tokens[i].text;
+    }
+    return "";
+  }
+  function clearTokenFromZones(tid){
+    for(var zid in state.sortChoice){
+      var arr = state.sortChoice[zid];
+      if(Array.isArray(arr)){
+        state.sortChoice[zid] = arr.filter(function(x){ return x !== tid; });
+      }
+    }
+  }
+  function moveSortTokenToBank(tid){
+    state.sortTokenLocation[tid] = "bank";
+    clearTokenFromZones(tid);
+    saveState(); render();
+  }
+  function placeSortTokenInZone(tid, zoneId){
+    clearTokenFromZones(tid);
+    state.sortTokenLocation[tid] = "zone";
+    if(!state.sortChoice[zoneId]) state.sortChoice[zoneId] = [];
+    state.sortChoice[zoneId].push(tid);
+    saveState(); render();
+  }
+  function renderSort(page){
+    ensureSortState(page);
+    var html = "";
+    html += '<h2 class="sectionTitle">' + colorizeText(page.title) + "</h2>";
+    html += '<div class="muted">' + colorizeText(page.intro) + "</div>";
+    html += '<div class="divider"></div>';
+
+    html += '<div class="sortWrap">';
+    html += '<div class="sortBankSticky">';
+    html += '<div class="muted" style="margin-bottom:8px;">Tokens sticky. Only zones scroll.</div>';
+    html += '<div class="sortBankZone" id="sortBankZone"></div>';
+    html += "</div>";
+
+    html += '<div class="sortZonesCard">';
+    html += '<div class="muted">Zones scroll here</div>';
+    html += '<div class="sortZonesScroll" id="sortZonesScroll">';
+    html += '<div id="zonesHolder"></div>';
+    html += "</div></div>";
+
+    html += "</div>";
+    elContent.innerHTML = html;
+
+    var bankZone = document.getElementById("sortBankZone");
+    var zonesHolder = document.getElementById("zonesHolder");
+    var zonesScroll = document.getElementById("sortZonesScroll");
+
+    bankZone.innerHTML = "";
+    setupDropZone(bankZone, function(tid){ moveSortTokenToBank(tid); });
+
+    for(var i=0;i<page.tokens.length;i++){
+      var tid = page.tokens[i].id;
+      if(state.sortTokenLocation[tid] === "bank"){
+        bankZone.appendChild(makeToken(tid, page.tokens[i].text));
+      }
+    }
+
+    zonesHolder.innerHTML = "";
+    for(var z=0;z<page.zones.length;z++){
+      var zone = page.zones[z];
+
+      var zoneEl = document.createElement("div");
+      zoneEl.className = "zone";
+
+      var hdr = document.createElement("div");
+      hdr.className = "zoneHeader";
+      hdr.innerHTML =
+        '<div class="zoneTitle">' + colorizeText(zone.name) + "</div>" +
+        '<div class="zoneHint">' + colorizeText(zone.hint) + "</div>";
+
+      var drop = document.createElement("div");
+      drop.className = "zoneDrop";
+      drop.dataset.zone = zone.id;
+
+      setupDropZone(drop, function(tid2, zoneEl2){
+        var zid = zoneEl2.dataset.zone;
+        placeSortTokenInZone(tid2, zid);
+      });
+
+      var arr = state.sortChoice[zone.id] || [];
+      drop.innerHTML = "";
+      if(arr.length === 0){
+        drop.innerHTML = '<span class="muted" style="font-size:12px">drop tokens here</span>';
+      }else{
+        arr.forEach(function(tid2){
+          drop.appendChild(makeToken(tid2, sortTokenText(page, tid2)));
+        });
+      }
+
+      zoneEl.appendChild(hdr);
+      zoneEl.appendChild(drop);
+      zonesHolder.appendChild(zoneEl);
+    }
+
+    // FIX: prevent native scroll-jitter on dragover (page 8)
+    zonesScroll.addEventListener("dragover", function(e){
+      e.preventDefault();
+      dragging.active = true;
+      dragging.lastClientY = e.clientY || 0;
+      dragging.sortScrollEl = zonesScroll;
+      lockNativeScroll(zonesScroll, true);
+    }, true);
+
+    zonesScroll.addEventListener("drop", function(){
+      lockNativeScroll(zonesScroll, false);
+    }, true);
+
+    zonesScroll.addEventListener("dragleave", function(){
+      // do not unlock here because the cursor may move between children;
+      // unlock happens reliably on dragend.
+    }, true);
+  }
+
+  function ensureMatchState(page){
+    for(var i=0;i<page.pairs.length;i++){
+      var tokenId = "mt" + String(i+1);
+      var slotId = "ms" + String(i+1);
+      if(!state.matchTokenLocation[tokenId]) state.matchTokenLocation[tokenId] = "bank";
+      if(typeof state.matchChoice[slotId] === "undefined") state.matchChoice[slotId] = "";
+    }
+  }
+
+  function matchTerm(page, tokenId){
+    var n = parseInt(String(tokenId).replace("mt",""), 10);
+    var idx = n - 1;
+    if(isNaN(idx) || idx < 0 || idx >= page.pairs.length) return "";
+    return page.pairs[idx][0];
+  }
+
+  function clearTokenFromMatch(tokenId){
+    for(var sid in state.matchChoice){
+      if(state.matchChoice[sid] === tokenId) state.matchChoice[sid] = "";
+    }
+  }
+
+  function moveMatchTokenToBank(tokenId){
+    state.matchTokenLocation[tokenId] = "bank";
+    clearTokenFromMatch(tokenId);
+    saveState(); render();
+  }
+
+  function placeMatchToken(tokenId, slotId){
+    var existing = state.matchChoice[slotId];
+    if(existing && existing !== tokenId){
+      state.matchTokenLocation[existing] = "bank";
+    }
+    clearTokenFromMatch(tokenId);
+    state.matchChoice[slotId] = tokenId;
+    state.matchTokenLocation[tokenId] = "pad";
+    saveState(); render();
+  }
+
+  function renderMatch(page){
+    ensureMatchState(page);
+
+    var html = "";
+    html += '<h2 class="sectionTitle">' + colorizeText(page.title) + "</h2>";
+    html += '<div class="muted">' + colorizeText(page.intro) + "</div>";
+    html += '<div class="divider"></div>';
+
+    html += '<div class="matchWrap">';
+    html += '<div class="matchBankSticky">';
+    html += '<div class="muted" style="margin-bottom:8px;">Drag words sticky. Only definitions and rows scroll.</div>';
+    html += '<div class="matchBankZone" id="matchBankZone"></div>';
+    html += "</div>";
+
+    html += '<div class="matchDefsCard">';
+    html += '<div class="muted">Definitions and rows scroll here</div>';
+    html += '<div class="matchDefsScroll" id="matchDefsScroll">';
+    html += '<div class="matchRow" id="matchPads"></div>';
+    html += "</div></div>";
+
+    html += "</div>";
+
+    elContent.innerHTML = html;
+
+    var bankZone = document.getElementById("matchBankZone");
+    var padsZone = document.getElementById("matchPads");
+    var defsScroll = document.getElementById("matchDefsScroll");
+
+    bankZone.innerHTML = "";
+    setupDropZone(bankZone, function(tid){ moveMatchTokenToBank(tid); });
+
+    for(var i=0;i<page.pairs.length;i++){
+      var tokenId = "mt" + String(i+1);
+      if(state.matchTokenLocation[tokenId] === "bank"){
+        bankZone.appendChild(makeToken(tokenId, page.pairs[i][0]));
+      }
+    }
+
+    padsZone.innerHTML = "";
+    for(var j=0;j<page.pairs.length;j++){
+      var slotId = "ms" + String(j+1);
+
+      var pad = document.createElement("div");
+      pad.className = "matchPad";
+      pad.dataset.slot = slotId;
+
+      setupDropZone(pad, function(tid2, padEl){
+        var sid = padEl.dataset.slot;
+        placeMatchToken(tid2, sid);
+      });
+
+      var defEl = document.createElement("div");
+      defEl.className = "def";
+      defEl.innerHTML = colorizeText(String(j+1) + ". " + page.pairs[j][1]);
+
+      var slot = document.createElement("div");
+      slot.className = "slot";
+      setupDropZone(slot, function(tid3, slotEl){
+        var parent = slotEl.closest(".matchPad");
+        if(!parent) return;
+        placeMatchToken(tid3, parent.dataset.slot);
+      });
+
+      var placed = state.matchChoice[slotId] || "";
+      slot.innerHTML = "";
+      if(placed){
+        pad.classList.add("filled");
+        slot.appendChild(makeToken(placed, matchTerm(page, placed)));
+      }else{
+        pad.classList.remove("filled");
+        slot.innerHTML = '<span class="muted" style="font-size:12px">drop word</span>';
+      }
+
+      pad.appendChild(defEl);
+      pad.appendChild(slot);
+      padsZone.appendChild(pad);
+    }
+
+    // FIX: prevent native scroll-jitter on dragover (page 9)
+    defsScroll.addEventListener("dragover", function(e){
+      e.preventDefault();
+      dragging.active = true;
+      dragging.lastClientY = e.clientY || 0;
+      dragging.matchScrollEl = defsScroll;
+      lockNativeScroll(defsScroll, true);
+    }, true);
+
+    defsScroll.addEventListener("drop", function(){
+      lockNativeScroll(defsScroll, false);
+    }, true);
+  }
+
+  function computeTotals(){
+    var correct = 0, incorrect = 0;
+
+    for(var s=0;s<SECTION_COUNT;s++){
+      var sectionPage = pages[SECTION_START + s];
+      for(var q=0;q<3;q++){
+        var globalIndex = (s * 3) + q + 1;
+        var qid = "mcq" + String(globalIndex);
+        var student = state.mcqChoice[qid] || "";
+        var corr = sectionPage.mcq[q].answer;
+        if(!student) continue;
+        if(student === corr) correct++;
+        else incorrect++;
+      }
+    }
+
+    var sortPage = pages[sortIndex];
+    for(var i=0;i<sortPage.tokens.length;i++){
+      var tid = sortPage.tokens[i].id;
+      var correctZone = sortPage.tokens[i].correctZone;
+      var studentZone = "";
+      for(var zid in state.sortChoice){
+        var arr = state.sortChoice[zid];
+        if(Array.isArray(arr) && arr.indexOf(tid) >= 0){
+          for(var zz=0;zz<sortPage.zones.length;zz++){
+            if(sortPage.zones[zz].id === zid) studentZone = sortPage.zones[zz].name;
+          }
+        }
+      }
+      if(!studentZone) continue;
+      if(studentZone === correctZone) correct++;
+      else incorrect++;
+    }
+
+    var matchPage = pages[matchIndex];
+    for(var m=0;m<matchPage.pairs.length;m++){
+      var slotId = "ms" + String(m+1);
+      var tid2 = state.matchChoice[slotId] || "";
+      var studentTerm = tid2 ? matchTerm(matchPage, tid2) : "";
+      var corrTerm = matchPage.pairs[m][0];
+      if(!studentTerm) continue;
+      if(studentTerm === corrTerm) correct++;
+      else incorrect++;
+    }
+
+    var denom = correct + incorrect;
+    var percent = denom === 0 ? 0 : Math.round((correct / denom) * 1000) / 10;
+    return { correct:correct, incorrect:incorrect, percent:percent };
+  }
+
+  function setHidden(id, value){
+    var el = document.getElementById(id);
+    if(el) el.value = value;
+  }
+
+  function fillAssessmentFields(){
+    setHidden("f_student_id", (state.studentId || "").trim());
+    setHidden("f_date", (state.date || "").trim());
+    setHidden("f_page_index", String(state.pageIndex));
+
+    var mcqCount = 0;
+    for(var s=0;s<SECTION_COUNT;s++){
+      var sectionPage = pages[SECTION_START + s];
+      for(var q=0;q<3;q++){
+        mcqCount++;
+        var qid = "mcq" + String(mcqCount);
+        var student = state.mcqChoice[qid] || "";
+        var corr = sectionPage.mcq[q].answer;
+        var result = student ? (student === corr ? "correct" : "incorrect") : "blank";
+        var n = String(mcqCount).padStart(2,"0");
+        setHidden("mcq" + n + "_student", student);
+        setHidden("mcq" + n + "_correct", corr);
+        setHidden("mcq" + n + "_result", result);
+      }
+    }
+
+    var sortPage = pages[sortIndex];
+    for(var i=0;i<sortPage.tokens.length;i++){
+      var tok = sortPage.tokens[i];
+      var studentZone = "";
+      for(var zid in state.sortChoice){
+        var arr = state.sortChoice[zid];
+        if(Array.isArray(arr) && arr.indexOf(tok.id) >= 0){
+          for(var zz=0;zz<sortPage.zones.length;zz++){
+            if(sortPage.zones[zz].id === zid) studentZone = sortPage.zones[zz].name;
+          }
+        }
+      }
+      var res = studentZone ? (studentZone === tok.correctZone ? "correct" : "incorrect") : "blank";
+      var sn = String(i+1).padStart(2,"0");
+      setHidden("sort" + sn + "_student", studentZone);
+      setHidden("sort" + sn + "_correct", tok.correctZone);
+      setHidden("sort" + sn + "_result", res);
+    }
+
+    var matchPage = pages[matchIndex];
+    for(var m=0;m<matchPage.pairs.length;m++){
+      var slotId = "ms" + String(m+1);
+      var tid2 = state.matchChoice[slotId] || "";
+      var studentT = tid2 ? matchTerm(matchPage, tid2) : "";
+      var corrT = matchPage.pairs[m][0];
+      var resT = studentT ? (studentT === corrT ? "correct" : "incorrect") : "blank";
+      var mn = String(m+1).padStart(2,"0");
+      setHidden("match" + mn + "_student", studentT);
+      setHidden("match" + mn + "_correct", corrT);
+      setHidden("match" + mn + "_result", resT);
+    }
+
+    var totals = computeTotals();
+    setHidden("f_percent_hidden", String(totals.percent));
+  }
+
+  function submitNow(){
+    var sid = (state.studentId || "").trim();
+    var dt = (state.date || "").trim();
+    if(!sid || !dt){
+      showOverlay("error");
+      return;
+    }
+
+    showOverlay("sending");
+    fillAssessmentFields();
+
+    var form = document.querySelector('form[name="bbha-playground-redesign"]');
+    var data = new FormData(form);
+
+    fetch("/", { method:"POST", body:data })
+      .then(function(res){
+        if(res && (res.ok || res.status === 200 || res.status === 201)){
+          showOverlay("success");
+        }else{
+          showOverlay("error");
+        }
+      })
+      .catch(function(){ showOverlay("error"); });
+  }
+
+  function resetAll(ev){
+    if(!ev.shiftKey) return;
+    var ok = confirm("Reset will clear all answers. Do you want to reset?");
+    if(!ok) return;
+
+    state = {
+      pageIndex: 0,
+      studentId: "",
+      date: state.date || "",
+      mcqChoice: {},
+      matchTokenLocation: {},
+      matchChoice: {},
+      sortTokenLocation: {},
+      sortChoice: {}
+    };
+
+    selId.value = "";
+    inpDate.value = state.date;
+
+    saveState();
+    render();
+  }
+
+  // FIX: controlled auto-scroll only. No window scrolling.
+  function tickAutoScroll(){
+    if(dragging.active){
+      var margin = 80;
+      var speed = 14;
+      var y = dragging.lastClientY || 0;
+
+      if(dragging.sortScrollEl){
+        var rectS = dragging.sortScrollEl.getBoundingClientRect();
+        if(y >= rectS.top && y <= rectS.bottom){
+          if(y < rectS.top + margin) dragging.sortScrollEl.scrollTop -= speed;
+          else if(y > rectS.bottom - margin) dragging.sortScrollEl.scrollTop += speed;
+        }
+      }
+
+      if(dragging.matchScrollEl){
+        var rectM = dragging.matchScrollEl.getBoundingClientRect();
+        if(y >= rectM.top && y <= rectM.bottom){
+          if(y < rectM.top + margin) dragging.matchScrollEl.scrollTop -= speed;
+          else if(y > rectM.bottom - margin) dragging.matchScrollEl.scrollTop += speed;
+        }
+      }
+    }
+    requestAnimationFrame(tickAutoScroll);
+  }
+
+  // Keep cursor Y updated
+  document.addEventListener("dragover", function(e){
+    dragging.active = true;
+    dragging.lastClientY = e.clientY || 0;
+  }, true);
+
+  function updateOuterScrollLock(){
+    var p = pages[state.pageIndex];
+    var lock = (p && (p.type === "sort" || p.type === "match"));
+    if(lock){
+      elScrollArea.classList.add("locked");
+      elScrollArea.scrollTop = 0;
+    }else{
+      elScrollArea.classList.remove("locked");
+    }
+  }
+
+  function render(){
+    try{
+      state.pageIndex = clamp(Number(state.pageIndex || 0), 0, TOTAL - 1);
+      elPagePill.textContent = "Page " + String(state.pageIndex + 1) + " of " + String(TOTAL);
+
+      if(selId.value !== (state.studentId || "")) selId.value = (state.studentId || "");
+      if(inpDate.value !== (state.date || "")) inpDate.value = (state.date || "");
+
+      renderTabs();
+      updateOuterScrollLock();
+
+      var page = pages[state.pageIndex];
+
+      if(page.type === "intro"){
+        renderIntro(page);
+      }else if(page.type === "section"){
+        var sectionZeroBased = clamp(state.pageIndex - 1, 0, 4);
+        renderSection(page, sectionZeroBased);
+      }else if(page.type === "glossary"){
+        renderGlossary();
+      }else if(page.type === "sort"){
+        renderSort(page);
+      }else if(page.type === "match"){
+        renderMatch(page);
+      }else{
+        setError("Loading error.");
+      }
+
+      btnPrev.disabled = (state.pageIndex === 0);
+      btnNext.disabled = (state.pageIndex === TOTAL - 1);
+
+      saveState();
+    }catch(e){
+      setError("Loading error.\n\n" + (e && e.stack ? e.stack : String(e)));
+    }
+  }
+
+  selId.addEventListener("change", function(){
+    state.studentId = selId.value;
+    saveState();
+  });
+
+  inpDate.addEventListener("input", function(){
+    state.date = inpDate.value;
+    saveState();
+  });
+
+  btnPrev.addEventListener("click", function(){ goToPage(state.pageIndex - 1); });
+  btnNext.addEventListener("click", function(){ goToPage(state.pageIndex + 1); });
+  btnReset.addEventListener("click", function(e){ resetAll(e); });
+  btnSubmit.addEventListener("click", function(){ submitNow(); });
+
+  tickAutoScroll();
+  render();
+})();
+</script>
+</body>
+</html>
